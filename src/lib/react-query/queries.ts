@@ -61,16 +61,22 @@ export const useGetPosts = () => {
     queryFn: getInfinitePosts,
     getNextPageParam: (lastPage) => {
       // If there's no data, there are no more pages.
-      if (lastPage && lastPage.documents.length === 0) {
+      if (!lastPage || lastPage.documents.length === 0) {
         return null;
       }
 
       // Use the $id of the last document as the cursor.
-      const lastId = lastPage.documents[lastPage.documents.length - 1].$id;
-      return lastId;
+      const lastId = (lastPage as { documents: { $id: string }[] }).documents[
+        (lastPage as { documents: { $id: string }[] }).documents.length - 1
+      ].$id;
+      return Number(lastId);
     },
+    initialPageParam: 0, // Add the initialPageParam property
   });
 };
+
+
+
 
 export const useSearchPosts = (searchTerm: string) => {
   return useQuery({

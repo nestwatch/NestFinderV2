@@ -213,7 +213,7 @@ export async function searchPosts(searchTerm: string) {
     const posts = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.postCollectionId,
-      [Query.search('caption', searchTerm)]
+      [Query.search("caption", searchTerm)]
     );
 
     if (!posts) throw Error;
@@ -225,17 +225,18 @@ export async function searchPosts(searchTerm: string) {
 }
 
 export async function getInfinitePosts({ pageParam }: { pageParam: number }) {
-  const queries: any[] = [Query.orderDesc("$updatedAt"), Query.limit(9)];
+  const queries: Query[] = [Query.orderDesc("$updatedAt"), Query.limit(9)];
 
   if (pageParam) {
     queries.push(Query.cursorAfter(pageParam.toString()));
   }
 
   try {
+    const queryStrings = queries.map(query => query.toString()); // Convert Query[] to string[]
     const posts = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.postCollectionId,
-      queries
+      queryStrings
     );
 
     if (!posts) throw Error;
@@ -245,6 +246,7 @@ export async function getInfinitePosts({ pageParam }: { pageParam: number }) {
     console.log(error);
   }
 }
+
 
 // ============================== GET POST BY ID
 export async function getPostById(postId?: string) {
@@ -449,7 +451,7 @@ export async function getRecentPosts() {
 
 // ============================== GET USERS
 export async function getUsers(limit?: number) {
-  const queries: any[] = [Query.orderDesc("$createdAt")];
+  const queries: Array<Query> = [Query.orderDesc("$createdAt")];
 
   if (limit) {
     queries.push(Query.limit(limit));
@@ -459,7 +461,7 @@ export async function getUsers(limit?: number) {
     const users = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.userCollectionId,
-      queries
+      queries.map(query => query.toString()) // Convert Query objects to strings
     );
 
     if (!users) throw Error;
@@ -469,6 +471,7 @@ export async function getUsers(limit?: number) {
     console.log(error);
   }
 }
+
 
 // ============================== GET USER BY ID
 export async function getUserById(userId: string) {
