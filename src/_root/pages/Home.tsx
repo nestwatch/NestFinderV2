@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Loader } from "@/components/shared";
-import { useGetRecentListings, useGetUsers } from "@/lib/react-query/queries";
+import { useGetRecentListings} from "@/lib/react-query/queries";
 import ListingCard from "@/components/shared/ListingCard";
 import Filters from "@/components/shared/Filters";
 import GeminiChat from "@/components/shared/GeminiChat";
@@ -15,13 +15,13 @@ const Home = () => {
     isError: isErrorListings,
   } = useGetRecentListings();
 
-  const {
-    data: creators = { total: 0, documents: [] },
-    isLoading: isUserLoading,
-    isError: isErrorCreators,
-  } = useGetUsers(10);
+  // const {
+  //   data: creators = { total: 0, documents: [] },
+  //   isLoading: isUserLoading,
+  //   isError: isErrorCreators,
+  // } = useGetUsers(10);
 
-  if (isErrorListings || isErrorCreators) {
+  if (isErrorListings) {
     return (
       <div className="flex flex-1">
         <div className="home-container">
