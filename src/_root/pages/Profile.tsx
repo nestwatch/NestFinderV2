@@ -10,7 +10,7 @@ import {
 
 import { LikedPosts } from "@/_root/pages";
 import { useUserContext } from "@/context/AuthContext";
-import { useGetUserById } from "@/lib/react-query/queries";
+import { useGetUserById } from "@/lib/react-query/queries_old";
 import { GridPostList, Loader } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 

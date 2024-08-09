@@ -25,19 +25,8 @@ import {
   searchPosts,
   savePost,
   deleteSavedPost,
-  createListing,
-  // getListingById,
-  updateListing,
-  // getUserListings,
-  // deleteListing,
-  likeListing,
-  getRecentListings,
-  // getInfiniteListings,
-  searchListings,
-  saveListing,
-  deleteSavedListing,
 } from "@/lib/appwrite/api";
-import { INewPost, INewUser, IUpdatePost, IUpdateUser, INewListing, IUpdateListing } from "@/types";
+import { INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 
 // ============================================================
 // AUTH QUERIES
@@ -85,6 +74,9 @@ export const useGetPosts = () => {
     initialPageParam: 0, // Add the initialPageParam property
   });
 };
+
+
+
 
 export const useSearchPosts = (searchTerm: string) => {
   return useQuery({
@@ -210,148 +202,6 @@ export const useDeleteSavedPost = () => {
       });
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_POSTS],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_CURRENT_USER],
-      });
-    },
-  });
-};
-
-// ============================================================
-// LISTING QUERIES
-// ============================================================
-
-export const useCreateListing = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (listing: INewListing) => createListing(listing),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_RECENT_LISTINGS],
-      });
-    },
-  });
-};
-
-export const useUpdateListing = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (listing: IUpdateListing) => updateListing(listing),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_LISTING_BY_ID, data?.$id],
-      });
-    },
-  });
-};
-
-export const useSearchListings = (searchTerm: string) => {
-  return useQuery({
-    queryKey: [QUERY_KEYS.SEARCH_LISTINGS, searchTerm],
-    queryFn: () => searchListings(searchTerm),
-    enabled: !!searchTerm,
-  });
-};
-
-export const useGetRecentListings = () => {
-  return useQuery({
-    queryKey: [QUERY_KEYS.GET_RECENT_LISTINGS],
-    queryFn: getRecentListings,
-    initialData: () => ({
-      total: 0,
-      documents: [],
-    }),
-  });
-};
-
-
-
-// export const useGetListingById = (listingId?: string) => {
-//   return useQuery({
-//     queryKey: [QUERY_KEYS.GET_LISTING_BY_ID, listingId],
-//     queryFn: () => getListingById(listingId),
-//     enabled: !!listingId,
-//   });
-// };
-
-// export const useGetUserListings = (userId?: string) => {
-//   return useQuery({
-//     queryKey: [QUERY_KEYS.GET_USER_LISTINGS, userId],
-//     queryFn: () => getUserListings(userId),
-//     enabled: !!userId,
-//   });
-// };
-
-// export const useDeleteListing = () => {
-// const queryClient = useQueryClient();
-// return useMutation({
-//   mutationFn: ({ listingId, imageId }: { listingId?: string; imageId: string }) =>
-//     deleteListing(listingId, imageId),
-//   onSuccess: () => {
-//     queryClient.invalidateQueries({
-//       queryKey: [QUERY_KEYS.GET_RECENT_LISTINGS],
-//     });
-//   },
-// });
-// };
-
-export const useLikeListing = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({
-      listingId,
-      likesArray,
-    }: {
-      listingId: string;
-      likesArray: string[];
-    }) => likeListing(listingId, likesArray),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_LISTING_BY_ID, data?.$id],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_RECENT_LISTINGS],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_LISTINGS],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_CURRENT_USER],
-      });
-    },
-  });
-};
-
-export const useSaveListing = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ userId, listingId }: { userId: string; listingId: string }) =>
-      saveListing(userId, listingId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_RECENT_LISTINGS],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_LISTINGS],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_CURRENT_USER],
-      });
-    },
-  });
-};
-
-export const useDeleteSavedListing = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (savedRecordId: string) => deleteSavedListing(savedRecordId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_RECENT_LISTINGS],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_LISTINGS],
       });
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_CURRENT_USER],

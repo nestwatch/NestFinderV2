@@ -1,11 +1,10 @@
 import { Models } from "appwrite";
 
 // import { useToast } from "@/components/ui/use-toast";
-import { Loader, PostCard } from "@/components/shared"; // Updated import for ChatGPTWindow
-import ChatGPTWindow from "@/components/shared/GeminiChat";
-import { useGetRecentPosts } from "@/lib/react-query/queries_old"; // Removed useGetUsers as it's no longer needed
+import { Loader, PostCard, UserCard } from "@/components/shared";
+import { useGetRecentPosts, useGetUsers } from "@/lib/react-query/queries_old";
 
-const Explore = () => {
+const Home = () => {
   // const { toast } = useToast();
 
   const {
@@ -13,10 +12,13 @@ const Explore = () => {
     isLoading: isPostLoading,
     isError: isErrorPosts,
   } = useGetRecentPosts();
+  const {
+    data: creators,
+    isLoading: isUserLoading,
+    isError: isErrorCreators,
+  } = useGetUsers(10);
 
-  // Removed the creators section as it's no longer needed
-
-  if (isErrorPosts) {
+  if (isErrorPosts || isErrorCreators) {
     return (
       <div className="flex flex-1">
         <div className="home-container">
@@ -49,12 +51,21 @@ const Explore = () => {
       </div>
 
       <div className="home-creators">
-        <h3 className="h3-bold text-light-1">Nest Chats</h3> {/* Updated heading */}
-        {/* Render the ChatGPT window component here */}
-        <ChatGPTWindow />
+        <h3 className="h3-bold text-light-1">Top Collaborators</h3>
+        {isUserLoading && !creators ? (
+          <Loader />
+        ) : (
+          <ul className="grid 2xl:grid-cols-2 gap-6">
+            {creators?.documents.map((creator) => (
+              <li key={creator?.$id}>
+                <UserCard user={creator} />
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
 };
 
-export default Explore;
+export default Home;

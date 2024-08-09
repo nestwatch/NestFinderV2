@@ -1,8 +1,8 @@
 import { Models } from "appwrite";
-import { Link } from "react-router-dom";
-
+import ImageGallery from "react-image-gallery";
 import { PostStats } from "@/components/shared";
 import { useUserContext } from "@/context/AuthContext";
+import "react-image-gallery/styles/css/image-gallery.css"; // Import the gallery styles
 
 type GridPostListProps = {
   posts: Models.Document[];
@@ -19,34 +19,45 @@ const GridPostList = ({
 
   return (
     <ul className="grid-container">
-      {posts.map((post) => (
-        <li key={post.$id} className="relative min-w-80 h-80">
-          <Link to={`/posts/${post.$id}`} className="grid-post_link">
-            <img
-              src={post.imageUrl}
-              alt="post"
-              className="h-full w-full object-cover"
-            />
-          </Link>
+      {posts.map((post) => {
+        // Transform image URLs into the format required by ImageGallery
+        const images = post.imageUrls?.map((url: string) => ({
+          original: url,
+          thumbnail: url,
+        })) || [];
 
-          <div className="grid-post_user">
-            {showUser && (
-              <div className="flex items-center justify-start gap-2 flex-1">
-                <img
-                  src={
-                    post.creator.imageUrl ||
-                    "/assets/icons/profile-placeholder.svg"
-                  }
-                  alt="creator"
-                  className="w-8 h-8 rounded-full"
-                />
-                <p className="line-clamp-1">{post.creator.name}</p>
-              </div>
+        return (
+          <li key={post.$id} className="relative min-w-80 h-80">
+            {images.length > 0 ? (
+              <ImageGallery items={images} showThumbnails={false} />
+            ) : (
+              <img
+                src="/assets/icons/image-placeholder.svg"
+                alt="post"
+                className="h-full w-full object-cover"
+              />
             )}
-            {showStats && <PostStats post={post} userId={user.id} />}
-          </div>
-        </li>
-      ))}
+
+            <div className="grid-post_user">
+              {showUser && post.creator && (
+                <div className="flex items-center justify-start gap-2 flex-1">
+                  <img
+                    src={
+                      post.creator.imageUrl ||
+                      "/assets/icons/profile-placeholder.svg"
+                    }
+                    alt="creator"
+                    className="w-8 h-8 rounded-full"
+                    loading="lazy"
+                  />
+                  <p className="line-clamp-1">{post.creator.name}</p>
+                </div>
+              )}
+              {showStats && <PostStats post={post} userId={user.id} />}
+            </div>
+          </li>
+        );
+      })}
     </ul>
   );
 };

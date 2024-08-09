@@ -4,39 +4,41 @@ import { useLocation } from "react-router-dom";
 
 import { checkIsLiked } from "@/lib/utils";
 import {
-  useLikePost,
-  useSavePost,
-  useDeleteSavedPost,
+  useLikeListing,
+  useSaveListing,
+  useDeleteSavedListing,
   useGetCurrentUser,
-} from "@/lib/react-query/queries_old";
+} from "@/lib/react-query/queries";
 
-type PostStatsProps = {
-  post: Models.Document;
+type ListingStatsProps = {
+  Listing: Models.Document;
   userId: string;
 };
 
-const PostStats = ({ post, userId }: PostStatsProps) => {
+const ListingStats = ({ Listing, userId }: ListingStatsProps) => {
   const location = useLocation();
-  const likesList = post.likes.map((user: Models.Document) => user.$id);
 
+  // Ensure likes is always an array
+  const likesList = Array.isArray(Listing.likes) ? Listing.likes.map((user: Models.Document) => user.$id) : [];
   const [likes, setLikes] = useState<string[]>(likesList);
   const [isSaved, setIsSaved] = useState(false);
 
-  const { mutate: likePost } = useLikePost();
-  const { mutate: savePost } = useSavePost();
-  const { mutate: deleteSavePost } = useDeleteSavedPost();
+  const { mutate: likeListing } = useLikeListing();
+  const { mutate: saveListing } = useSaveListing();
+  const { mutate: deleteSaveListing } = useDeleteSavedListing();
 
   const { data: currentUser } = useGetCurrentUser();
 
-  const savedPostRecord = currentUser?.save.find(
-    (record: Models.Document) => record.post.$id === post.$id
+  // Ensure currentUser.save is an array
+  const savedListingRecord = currentUser?.save?.find(
+    (record: Models.Document) => record.Listing.$id === Listing.$id
   );
 
   useEffect(() => {
-    setIsSaved(!!savedPostRecord);
-  }, [currentUser, savedPostRecord]);
+    setIsSaved(!!savedListingRecord);
+  }, [currentUser, savedListingRecord, Listing.$id]);
 
-  const handleLikePost = (
+  const handleLikeListing = (
     e: React.MouseEvent<HTMLImageElement, MouseEvent>
   ) => {
     e.stopPropagation();
@@ -50,20 +52,20 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
     }
 
     setLikes(likesArray);
-    likePost({ postId: post.$id, likesArray });
+    likeListing({ listingId: Listing.$id, likesArray });
   };
 
-  const handleSavePost = (
+  const handleSaveListing = (
     e: React.MouseEvent<HTMLImageElement, MouseEvent>
   ) => {
     e.stopPropagation();
 
-    if (savedPostRecord) {
+    if (savedListingRecord) {
       setIsSaved(false);
-      return deleteSavePost(savedPostRecord.$id);
+      return deleteSaveListing(savedListingRecord.$id);
     }
 
-    savePost({ userId: userId, postId: post.$id });
+    saveListing({ userId: userId, listingId: Listing.$id });
     setIsSaved(true);
   };
 
@@ -84,7 +86,7 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
           alt="like"
           width={20}
           height={20}
-          onClick={(e) => handleLikePost(e)}
+          onClick={(e) => handleLikeListing(e)}
           className="cursor-pointer"
         />
         <p className="small-medium lg:base-medium">{likes.length}</p>
@@ -97,11 +99,11 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
           width={20}
           height={20}
           className="cursor-pointer"
-          onClick={(e) => handleSavePost(e)}
+          onClick={(e) => handleSaveListing(e)}
         />
       </div>
     </div>
   );
 };
 
-export default PostStats;
+export default ListingStats;

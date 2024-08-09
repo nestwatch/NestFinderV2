@@ -276,5 +276,63 @@
 
   .shad-button_ghost {
     @apply flex gap-4 items-center justify-start hover:bg-transparent hover:text-white !important;
+  }  
+}
+
+@layer components {
+  /* Listing Card */
+  .Listing-card {
+    @apply bg-dark-1 rounded-lg border border-dark-4 p-5 lg:p-7;
+  }
+
+  /* Image Gallery Container */
+  .image-gallery-container {
+    @apply w-full; /* Ensure the gallery takes full width of its container */
+  }
+
+  /* Image Gallery */
+  .react-image-gallery {
+    @apply w-full; /* Make sure the gallery itself is full width */
+  }
+
+  .react-image-gallery-slide {
+    @apply h-auto; /* Adjust the height of slides automatically */
+  }
+
+  .react-image-gallery-image {
+    @apply w-full h-auto; /* Ensure images scale properly */
   }
 }
+
+@layer components {
+  /* Floating Icon */
+  .floating-icon {
+    @apply fixed bottom-5 right-5 p-4 bg-primary-500 rounded-full text-white shadow-lg lg:hidden;
+    z-index: 9999;
+  }
+
+  /* Floating Filter and Chat */
+  .filter-chat-container {
+    @apply fixed bottom-0 right-0 p-4 bg-dark-2 rounded-t-lg shadow-lg lg:hidden;
+    width: 100vw; /* Full width on mobile */
+    height: 100vh; /* Full height on mobile */
+    max-height: 100vh; /* Ensure no overflow */
+    overflow-y: auto; /* Scroll if content is too long */
+    z-index: 9999; /* Ensure it is on top */
+    transition: transform 0.3s ease-in-out;
+  }
+
+  /* For showing the filter and chat together */
+  .show-filter {
+    transform: translateY(0);
+  }
+
+  .show-chat {
+    transform: translateY(0);
+  }
+
+  .hide {
+    transform: translateY(100%);
+  }
+}
+

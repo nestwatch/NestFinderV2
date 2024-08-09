@@ -3,7 +3,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 
 import { Button } from "../ui/button";
 import { useUserContext } from "@/context/AuthContext";
-import { useSignOutAccount } from "@/lib/react-query/queries";
+import { useSignOutAccount } from "@/lib/react-query/queries_old";
 import { sidebarLinks } from "@/constants";
 import { INavLink } from "@/types";
 
@@ -20,7 +20,7 @@ const LeftSidebar = () => {
       <div className="flex flex-col gap-11">
         <Link to="/" className="flex gap-3 items-center">
           <img
-            src="/assets/icons/NWlogo - Transparent.png"
+            src="/assets/icons/logo.png"
             alt="logo"
             width={180}
             height={36}

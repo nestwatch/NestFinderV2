@@ -1,7 +1,6 @@
 import { ID, Query } from "appwrite";
-
 import { appwriteConfig, account, databases, storage, avatars } from "./config";
-import { IUpdatePost, INewPost, INewUser, IUpdateUser } from "@/types";
+import { IUpdatePost, INewPost, INewUser, IUpdateUser, INewListing, IUpdateListing } from "@/types";
 
 // ============================================================
 // AUTH
@@ -440,6 +439,212 @@ export async function getRecentPosts() {
     if (!posts) throw Error;
 
     return posts;
+  } catch (error) {
+    console.log(error);
+  }
+}
+// ============================== CREATE LISTING
+export async function createListing(listing: INewListing) {
+  try {
+    const newListing = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.listingCollectionId, 
+      ID.unique(),
+      listing
+    );
+
+    if (!newListing) throw new Error("Failed to create listing");
+
+    return newListing;
+  } catch (error) {
+    console.error("Error creating listing:", error);
+    throw error;
+  }
+}
+
+// ============================== UPDATE LISTING
+export async function updateListing(listing: IUpdateListing) {
+  try {
+    const updatedListing = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.listingCollectionId, // Ensure you have this defined in your appwriteConfig
+      listing.listingId, 
+      listing
+    );
+
+    if (!updatedListing) throw new Error("Failed to update listing");
+
+    return updatedListing;
+  } catch (error) {
+    console.error("Error updating listing:", error);
+    throw error;
+  }
+}
+
+// ============================== DELETE LISTING
+export async function deleteListing(listingId: string) {
+  try {
+    const statusCode = await databases.deleteDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.listingCollectionId,
+      listingId
+    );
+
+    if (!statusCode) throw new Error("Failed to delete listing");
+
+    return { status: "Ok" };
+  } catch (error) {
+    console.error("Error deleting listing:", error);
+    throw error;
+  }
+}
+
+// ============================== GET LISTING BY ID
+export async function getListingById(listingId: string) {
+  try {
+    const listing = await databases.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.listingCollectionId,
+      listingId
+    );
+
+    if (!listing) throw Error;
+
+    return listing;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// ============================== GET USER'S LISTINGS
+export async function getUserListings(userId: string) {
+  try {
+    const listings = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.listingCollectionId,
+      [Query.equal("creator", userId), Query.orderDesc("$createdAt")]
+    );
+
+    if (!listings) throw Error;
+
+    return listings;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// ============================== SEARCH LISTINGS
+export async function searchListings(searchTerm: string) {
+  try {
+    const listings = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.listingCollectionId,
+      [Query.search("title", searchTerm)]
+    );
+
+    if (!listings) throw Error;
+
+    return listings;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// ============================== GET RECENT LISTINGS
+export async function getRecentListings() {
+  try {
+    const listings = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.listingCollectionId,
+      [Query.orderDesc("$createdAt"), Query.limit(20)]
+    );
+    console.log('Fetched Listings:', listings); // Log the output
+    if (!listings) throw new Error('No listings found'); // Update the error
+    return listings;
+  } catch (error) {
+    console.log('Error fetching listings:', error); // Better error logging
+    throw error; // Rethrow to catch in `useQuery`
+  }
+}
+
+
+// ============================== GET INFINITE LISTINGS
+export async function getInfiniteListings({ pageParam }: { pageParam: number }) {
+  const queries: Query[] = [Query.orderDesc("$updatedAt"), Query.limit(9)];
+
+  if (pageParam) {
+    queries.push(Query.cursorAfter(pageParam.toString()));
+  }
+
+  try {
+    const queryStrings = queries.map(query => query.toString()); // Convert Query[] to string[]
+    const listings = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.listingCollectionId,
+      queryStrings
+    );
+
+    if (!listings) throw Error;
+
+    return listings;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// ============================== LIKE LISTING
+export async function likeListing(listingId: string, likesArray: string[]) {
+  try {
+    const updatedListing = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.listingCollectionId,
+      listingId,
+      {
+        likes: likesArray,
+      }
+    );
+
+    if (!updatedListing) throw Error;
+
+    return updatedListing;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// ============================== SAVE LISTING
+export async function saveListing(userId: string, listingId: string) {
+  try {
+    const savedListing = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.savesCollectionId,
+      ID.unique(),
+      {
+        user: userId,
+        listing: listingId,
+      }
+    );
+
+    if (!savedListing) throw Error;
+
+    return savedListing;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// ============================== DELETE SAVED LISTING
+export async function deleteSavedListing(savedRecordId: string) {
+  try {
+    const statusCode = await databases.deleteDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.savesCollectionId,
+      savedRecordId
+    );
+
+    if (!statusCode) throw Error;
+
+    return { status: "Ok" };
   } catch (error) {
     console.log(error);
   }

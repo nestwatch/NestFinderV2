@@ -46,3 +46,25 @@ export type INavLink = {
     username: string;
     password: string;
   };
+
+  export interface INewListing {
+    userId: string;  // Correct property name
+    address: string;
+    title: string;
+    description: string;
+    price: number;
+    bedrooms: number;
+    bathrooms: number;
+    squareFeet: number;
+    tags?: string; 
+    file: File[];  
+  }
+  
+  export interface IUpdateListing {
+    listingId: string;
+    imageId?: string; 
+    imageUrl?: string;
+    title?: string;
+    description?: string;
+    price?: number;
+  }

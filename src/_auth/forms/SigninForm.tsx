@@ -10,7 +10,7 @@ import Loader from "@/components/shared/Loader";
 import { useToast } from "@/components/ui/use-toast";
 
 import { SigninValidation } from "@/lib/validation";
-import { useSignInAccount } from "@/lib/react-query/queries";
+import { useSignInAccount } from "@/lib/react-query/queries_old";
 import { useUserContext } from "@/context/AuthContext";
 
 const SigninForm = () => {
@@ -55,7 +55,7 @@ const SigninForm = () => {
   return (
     <Form {...form}>
       <div className="sm:w-420 flex-center flex-col">
-      <img src="/assets/icons/NWlogo - Transparent.png" alt="logo" />
+      <img src="/assets/icons/logo.png" alt="logo" />
 
         <h2 className="h3-bold md:h2-bold pt-5 sm:pt-12">
           Log in to your account
