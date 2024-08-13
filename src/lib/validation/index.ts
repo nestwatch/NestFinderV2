@@ -41,9 +41,9 @@ export const ListingValidation = z.object({
   description: z.string().min(20, { message: "Description must be at least 20 characters long." }).max(5000, { message: "Description can be up to 5000 characters long." }),
   price: z.number().min(0, { message: "Price must be a positive number." }),
   address: z.string().min(5, { message: "Address must be at least 5 characters long." }).max(1000, { message: "Address can be up to 1000 characters long." }),
-  bedrooms: z.number().min(1, { message: "There must be at least 1 bedroom." }),
+  Bedroom: z.number().min(1, { message: "There must be at least 1 bedroom." }),
   bathrooms: z.number().min(1, { message: "There must be at least 1 bathroom." }),
-  squareFeet: z.number().min(1, { message: "Square feet must be a positive number." }),
+  Sqft: z.number().min(1, { message: "Square feet must be a positive number." }),
   file: z.custom<File[]>(),
   tags: z.string().optional(),
 });

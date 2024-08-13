@@ -53,9 +53,9 @@ export type INavLink = {
     title: string;
     description: string;
     price: number;
-    bedrooms: number;
+    Bedroom: string;
     bathrooms: number;
-    squareFeet: number;
+    Sqft: string;
     tags?: string; 
     file: File[];  
   }
@@ -68,3 +68,43 @@ export type INavLink = {
     description?: string;
     price?: number;
   }
+
+  export interface Listing {
+    $id: string;
+    $collectionId: string;
+    $databaseId: string;
+    $createdAt: string;
+    $updatedAt: string;
+    $permissions: string[];
+    title: string;
+    address: string;
+    city: string;
+    province: string;
+    price: number;
+    Bedroom: string;
+    bathrooms: number;
+    parking: number;
+    postalCode: string;
+    Sqft: string;
+    forSaleOrRent: string;
+    type: string;
+    imageUrls: string[];
+    description: string;
+  }  
+  
+ 
+export interface GeminiAIMatch {
+  address: string;
+  city: string;
+  province: string;
+  description: string;
+  bedrooms: string;  // Use consistent casing
+  bathrooms: number;
+  parking: number;
+  price: number;
+  postalCode: string;
+  Sqft: string;
+  forSaleOrRent: string;
+  type: string;
+}
+

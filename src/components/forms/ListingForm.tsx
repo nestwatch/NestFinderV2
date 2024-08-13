@@ -30,9 +30,9 @@ const ListingForm = ({ listing, action }: ListingFormProps) => {
       description: listing ? listing?.description : "",
       price: listing ? listing?.price : 0,
       address: listing ? listing?.address : "",
-      bedrooms: listing ? listing?.bedrooms : 1,
+      Bedroom: listing ? listing?.Bedroom : 1,
       bathrooms: listing ? listing?.bathrooms : 1,
-      squareFeet: listing ? listing?.squareFeet : 0,
+      Sqft: listing ? listing?.Sqft : 0,
       file: [],
       tags: listing ? listing?.tags.join(",") : "",
     },
@@ -48,9 +48,9 @@ const ListingForm = ({ listing, action }: ListingFormProps) => {
   const handleSubmit = async (value: z.infer<typeof ListingValidation>) => {
     const numericValues = {
       price: Number(value.price),
-      bedrooms: Number(value.bedrooms),
+      Bedroom: String(value.Bedroom),
       bathrooms: Number(value.bathrooms),
-      squareFeet: Number(value.squareFeet),
+      Sqft: String(value.Sqft),
     };
   
     const payload = {
@@ -155,10 +155,10 @@ const ListingForm = ({ listing, action }: ListingFormProps) => {
 
         <FormField
           control={form.control}
-          name="bedrooms"
+          name="Bedroom"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="shad-form_label">Bedrooms</FormLabel>
+              <FormLabel className="shad-form_label">Bedroom</FormLabel>
               <FormControl className=" bg-dark-4 ">
                 <Input type="number" className="shad-input" {...field} />
               </FormControl>
@@ -183,7 +183,7 @@ const ListingForm = ({ listing, action }: ListingFormProps) => {
 
         <FormField
           control={form.control}
-          name="squareFeet"
+          name="Sqft"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="shad-form_label">Square Feet</FormLabel>

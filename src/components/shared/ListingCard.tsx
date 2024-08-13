@@ -7,14 +7,26 @@ import ListingStats from "./ListingStats";
 
 type ListingCardProps = {
   Listing: Models.Document & {
-    Address: string;
-    City: string;
-    Province: string;
+    $id: string;
+    $collectionId: string;
+    $databaseId: string;
+    $createdAt: string;
+    $updatedAt: string;
+    $permissions: string[];
+    title: string;
+    address: string;
+    city: string;
+    province: string;
+    price: number;
     Bedroom: string;
-    Bathroom: number;
-    Parking: number;
+    bathrooms: number;
+    parking: number;
+    postalCode: string;
     Sqft: string;
-    imageUrls?: string[];
+    forSaleOrRent: string;
+    type: string;
+    imageUrls: string[];
+    description: string;
   };
 };
 

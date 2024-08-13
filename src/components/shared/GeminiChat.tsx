@@ -1,21 +1,38 @@
 import { useState } from 'react';
+import { prepareListingsForGemini } from '@/lib/appwrite/api';
+import { Listing } from '@/types';
 
-const GeminiChat = () => {
+interface GeminiChatProps {
+  onResults: (results: Listing[]) => void;
+}
+
+const GeminiChat = ({ onResults }: GeminiChatProps) => {
   const [messages, setMessages] = useState<{ text: string; sender: 'user' | 'ai' }[]>([]);
   const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (input.trim() === '') return;
 
-    // Add user message to the chat
     setMessages([...messages, { text: input, sender: 'user' }]);
     setInput('');
+    setLoading(true);
 
-    // Simulate AI response (replace this with actual API call)
-    setTimeout(() => {
-      const aiResponse = `Rex: showing you the best listings matching your criteria`;
+    try {
+      const listingsData = await prepareListingsForGemini();
+      console.log("Appwrite Listings Data:", listingsData);
+
+      // Send the results back to the Home component
+      onResults(listingsData);
+
+      const aiResponse = `Rex: showing you ${listingsData.length} listings matching your criteria`;
       setMessages([...messages, { text: input, sender: 'user' }, { text: aiResponse, sender: 'ai' }]);
-    }, 1000);
+    } catch (error) {
+      console.error("Error handling message:", error);
+      setMessages([...messages, { text: input, sender: 'user' }, { text: "Sorry, something went wrong. Please try again later.", sender: 'ai' }]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -23,10 +40,7 @@ const GeminiChat = () => {
       <h3 className="h3-bold text-light-1 mb-3">I'm Rex, your personal AI realtor</h3>
       <div className="ai-chat-box flex-1 overflow-auto bg-dark-3 p-3 rounded border border-dark-4 custom-scrollbar">
         {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`message p-2 mb-2 rounded ${msg.sender === 'user' ? 'bg-primary-500 text-light-1 self-end' : 'bg-dark-4 text-light-1 self-start'}`}
-          >
+          <div key={index} className={`message p-2 mb-2 rounded ${msg.sender === 'user' ? 'bg-primary-500 text-light-1 self-end' : 'bg-dark-4 text-light-1 self-start'}`}>
             {msg.text}
           </div>
         ))}
@@ -39,11 +53,8 @@ const GeminiChat = () => {
           className="flex-1 p-2 border border-dark-4 rounded bg-dark-3 text-light-1 placeholder:text-light-4"
           placeholder="Type your message..."
         />
-        <button
-          onClick={handleSendMessage}
-          className="ml-2 p-2 bg-primary-500 text-light-1 rounded hover:bg-primary-600 transition"
-        >
-          Send
+        <button onClick={handleSendMessage} className="ml-2 p-2 bg-primary-500 text-light-1 rounded hover:bg-primary-600 transition" disabled={loading}>
+          {loading ? 'Processing...' : 'Send'}
         </button>
       </div>
     </div>

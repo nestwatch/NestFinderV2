@@ -1,12 +1,25 @@
+
 import { useState } from "react";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
+import { Query, Databases, Client } from "appwrite";
 
-const Filters = () => {
+interface FiltersProps {
+  handleSearch: () => Promise<any>;
+}
+
+// Initialize Appwrite client
+const client = new Client();
+client.setEndpoint(import.meta.env.VITE_APPWRITE_URL).setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID);
+
+const databases = new Databases(client);
+
+const Filters: React.FC<{ onSearch: (filters: FiltersProps) => Promise<void> }> = ({ onSearch }) => {
   const [priceRange, setPriceRange] = useState([100000, 50000000]);
-  const [bedrooms, setBedrooms] = useState("1");
+  const [Bedroom, setBedroom] = useState("1");
   const [bathrooms, setBathrooms] = useState("1");
   const [parking, setParking] = useState("1");
+  const [listingType, setListingType] = useState("Sale");
   const [types, setTypes] = useState({
     Condo: false,
     "Condo-TownHouse": false,
@@ -16,19 +29,14 @@ const Filters = () => {
     TownHouse: false,
   });
 
-  // Map the slider value (0 to 100) to the desired price range
   const mapSliderValueToPrice = (value: number): number => {
     if (value <= 25) {
-      // Map 0-25% to 100,000 to 1,000,000
       return Math.round(100000 + (value / 25) * 900000);
     } else if (value <= 50) {
-      // Map 25-50% to 1,000,000 to 2,000,000
       return Math.round(1000000 + ((value - 25) / 25) * 1000000);
     } else if (value <= 75) {
-      // Map 50-75% to 2,000,000 to 10,000,000
       return Math.round(2000000 + ((value - 50) / 25) * 8000000);
     } else {
-      // Map 75-100% to 10,000,000 to 50,000,000
       return Math.round(10000000 + ((value - 75) / 25) * 40000000);
     }
   };
@@ -52,13 +60,113 @@ const Filters = () => {
   const handleTypeChange = (type: string) => {
     setTypes((prevTypes) => ({
       ...prevTypes,
-      [type]: !prevTypes[type as keyof typeof types],
+      [type]: !prevTypes[type as keyof typeof prevTypes], // Type assertion added
     }));
   };
+
+  const handleListingTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setListingType(event.target.value);
+  };
+
+  const handleSearch = async () => {
+    try {
+      // Log the current filter state
+      console.log("Search Filters:", {
+        listingType,
+        priceRange,
+        Bedroom,
+        bathrooms,
+        parking,
+        selectedTypes: Object.keys(types).filter((type) => types[type as keyof typeof types]),
+      });
+  
+      const filters = [
+        Query.equal("ForSaleorRent", listingType),
+        Query.greaterThanEqual("Price", priceRange[0]),
+        Query.lessThanEqual("Price", priceRange[1]),
+      ];
+  
+      // Bedroom handling - checking for matches or more than specified value
+      if (Bedroom.includes("+")) {
+        const bedroomCount = parseInt(Bedroom.replace("+", ""));
+        filters.push(Query.greaterThanEqual("Bedroom", bedroomCount.toString()));
+      } else {
+        filters.push(Query.equal("Bedroom", Bedroom));
+      }
+  
+      // Bathroom and Parking handling
+      if (bathrooms.includes("+")) {
+        const bathroomCount = parseInt(bathrooms.replace("+", ""));
+        filters.push(Query.greaterThanEqual("Bathroom", bathroomCount));
+      } else {
+        filters.push(Query.equal("Bathroom", parseInt(bathrooms)));
+      }
+  
+      if (parking.includes("+")) {
+        const parkingCount = parseInt(parking.replace("+", ""));
+        filters.push(Query.greaterThanEqual("Parking", parkingCount));
+      } else {
+        filters.push(Query.equal("Parking", parseInt(parking)));
+      }
+  
+      // Adding type filters if any are selected
+      const selectedTypes = Object.keys(types).filter((type) => types[type as keyof typeof types]);
+      if (selectedTypes.length > 0) {
+        filters.push(Query.equal("Type", selectedTypes));
+      }
+  
+      console.log("Query Filters:", filters);
+  
+      const listings = await databases.listDocuments(
+        import.meta.env.VITE_APPWRITE_DATABASE_ID,
+        import.meta.env.VITE_APPWRITE_LISTING_COLLECTION_ID,
+        [
+          ...filters,
+          Query.orderDesc("$createdAt"),
+          Query.limit(20),
+        ]
+      );
+  
+      console.log('Fetched Listings:', listings);
+  
+      if (!listings || listings.documents.length === 0) throw new Error('No listings found');
+      return listings;
+    } catch (error) {
+      console.log('Error fetching listings:', error);
+      throw error;
+    }
+  };    
 
   return (
     <div className="filters p-4 bg-dark-2 text-light-1 rounded mb-4">
       <h3 className="h3-bold text-light-1 mb-3">Search</h3>
+
+      {/* Sale/Rent Radio Button */}
+      <div className="filter-item mb-4">
+        <label className="body-regular text-light-3 mb-2">Listing Type</label>
+        <div className="flex gap-4">
+          <label className="flex items-center">
+            <input
+              type="radio"
+              value="Sale"
+              checked={listingType === "Sale"}
+              onChange={handleListingTypeChange}
+              className="mr-2"
+            />
+            <span className="text-light-3">Sale</span>
+          </label>
+          <label className="flex items-center">
+            <input
+              type="radio"
+              value="Rent"
+              checked={listingType === "Rent"}
+              onChange={handleListingTypeChange}
+              className="mr-2"
+            />
+            <span className="text-light-3">Rent</span>
+          </label>
+        </div>
+      </div>
 
       {/* Type Filter */}
       <div className="filter-item mb-4">
@@ -82,8 +190,8 @@ const Filters = () => {
           <label className="body-regular text-light-3">Bedroom</label>
           <select
             className="filter-input bg-light-1 text-dark-2 w-full"
-            value={bedrooms}
-            onChange={(e) => setBedrooms(e.target.value)}
+            value={Bedroom}
+            onChange={(e) => setBedroom(e.target.value)}
           >
             <option value="Studio">Studio</option>
             <option value="1">1</option>
@@ -142,6 +250,16 @@ const Filters = () => {
           <span>{`CAD ${priceRange[0].toLocaleString()}`}</span>
           <span>{`CAD ${priceRange[1].toLocaleString()}`}</span>
         </div>
+      </div>
+
+      {/* Search Button */}
+      <div className="flex justify-end mt-6">
+        <button
+          onClick={() => onSearch({ handleSearch })}
+          className="ml-2 p-2 bg-primary-500 text-light-1 rounded hover:bg-primary-600 transition"
+        >
+          Search
+        </button>
       </div>
     </div>
   );

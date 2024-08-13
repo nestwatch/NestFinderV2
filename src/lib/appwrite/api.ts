@@ -1,6 +1,6 @@
 import { ID, Query } from "appwrite";
 import { appwriteConfig, account, databases, storage, avatars } from "./config";
-import { IUpdatePost, INewPost, INewUser, IUpdateUser, INewListing, IUpdateListing } from "@/types";
+import { IUpdatePost, INewPost, INewUser, IUpdateUser, INewListing, IUpdateListing, Listing } from "@/types";
 
 // ============================================================
 // AUTH
@@ -550,22 +550,22 @@ export async function searchListings(searchTerm: string) {
   }
 }
 
-// ============================== GET RECENT LISTINGS
-export async function getRecentListings() {
-  try {
-    const listings = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.listingCollectionId,
-      [Query.orderDesc("$createdAt"), Query.limit(20)]
-    );
-    console.log('Fetched Listings:', listings); // Log the output
-    if (!listings) throw new Error('No listings found'); // Update the error
-    return listings;
-  } catch (error) {
-    console.log('Error fetching listings:', error); // Better error logging
-    throw error; // Rethrow to catch in `useQuery`
+  // ============================== GET RECENT LISTINGS
+  export async function getRecentListings() {
+    try {
+      const listings = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.listingCollectionId,
+        [Query.orderDesc("$createdAt"), Query.limit(100)]
+      );
+      console.log('Fetched Listings:', listings); // Log the output
+      if (!listings) throw new Error('No listings found'); // Update the error
+      return listings;
+    } catch (error) {
+      console.log('Error fetching listings:', error); // Better error logging
+      throw error; // Rethrow to catch in `useQuery`
+    }
   }
-}
 
 
 // ============================== GET INFINITE LISTINGS
@@ -750,5 +750,44 @@ export async function updateUser(user: IUpdateUser) {
     return updatedUser;
   } catch (error) {
     console.log(error);
+  }
+}
+
+// ============================== PREPARE LISTINGS FOR GEMINI
+export async function prepareListingsForGemini(): Promise<Listing[]> {
+  try {
+    const recentListings = await getRecentListings();
+
+    if (!recentListings || !recentListings.documents) {
+      throw new Error("No listings found");
+    }
+
+    const formattedListings: Listing[] = recentListings.documents.map((listing: any) => ({
+      $id: listing.$id,
+      $collectionId: listing.$collectionId,
+      $databaseId: listing.$databaseId,
+      $createdAt: listing.$createdAt,
+      $updatedAt: listing.$updatedAt,
+      $permissions: listing.$permissions,
+      title: listing.title || '',
+      address: listing.address || '',
+      city: listing.city || '',
+      province: listing.province || '',
+      price: listing.price || 0,
+      Bedroom: listing.Bedroom || '',
+      bathrooms: listing.bathrooms || 0,
+      parking: listing.parking || 0,
+      postalCode: listing.postalCode || '',
+      Sqft: listing.Sqft || '',
+      forSaleOrRent: listing.forSaleOrRent || '',
+      type: listing.type || '',
+      imageUrls: listing.imageUrls || [],
+      description: listing.description || '',
+    }));
+
+    return formattedListings;
+  } catch (error) {
+    console.error("Error preparing listings for Gemini:", error);
+    throw error;
   }
 }
