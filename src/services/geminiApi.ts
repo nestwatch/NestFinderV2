@@ -1,6 +1,6 @@
 // Declare API variables at the top level of the module to avoid redeclaration
-const API_KEY = 'AIzaSyCAAvm2ybaY6zGpTMhyLoSwgd9xt5V-0dY';
-const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`;
+const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+const API_URL = `${process.env.NEXT_PUBLIC_GEMINI_API_URL}?key=${API_KEY}`;
 
 // Updated response structure
 interface GeminiAIResponse {
