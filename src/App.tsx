@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import ChatGPTWindow from "@/components/shared/GeminiChat";
+import GeminiChat from "@/components/shared/GeminiChat";
 
 import {
   Home,
@@ -45,7 +45,7 @@ const App = () => {
           <Route path="/posts/:id" element={<PostDetails />} />
           <Route path="/profile/:id/*" element={<Profile />} />
           <Route path="/update-profile/:id" element={<UpdateProfile />} />
-          <Route path="/chat" element={<ChatGPTWindow />} />
+          <Route path="/chat" element={<GeminiChat onResults={() => {}} />} />
         </Route>
         <Route element={<RootLayoutNW />}>
           <Route path="/NestWatchHome" element={<Navbar />} />

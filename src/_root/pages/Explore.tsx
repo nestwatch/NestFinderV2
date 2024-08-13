@@ -1,20 +1,20 @@
 import { Models } from "appwrite";
-
-// import { useToast } from "@/components/ui/use-toast";
-import { Loader, PostCard } from "@/components/shared"; // Updated import for ChatGPTWindow
-import ChatGPTWindow from "@/components/shared/GeminiChat";
-import { useGetRecentPosts } from "@/lib/react-query/queries_old"; // Removed useGetUsers as it's no longer needed
+import { Loader, PostCard } from "@/components/shared";
+import GeminiChat from "@/components/shared/GeminiChat";
+import { useGetRecentPosts } from "@/lib/react-query/queries_old";
+import { Listing } from '@/types'; // Import the Listing type
 
 const Explore = () => {
-  // const { toast } = useToast();
-
   const {
     data: posts,
     isLoading: isPostLoading,
     isError: isErrorPosts,
   } = useGetRecentPosts();
 
-  // Removed the creators section as it's no longer needed
+  const handleGeminiChatResults = (results: Listing[]) => {
+    console.log("Gemini Chat Results in Explore:", results);
+    // Handle the results
+  };
 
   if (isErrorPosts) {
     return (
@@ -49,9 +49,8 @@ const Explore = () => {
       </div>
 
       <div className="home-creators">
-        <h3 className="h3-bold text-light-1">Nest Chats</h3> {/* Updated heading */}
-        {/* Render the ChatGPT window component here */}
-        <ChatGPTWindow />
+        <h3 className="h3-bold text-light-1">Nest Chats</h3>
+        <GeminiChat onResults={handleGeminiChatResults} />
       </div>
     </div>
   );
