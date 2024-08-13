@@ -19,7 +19,7 @@ const GeminiChat = ({ onResults }: GeminiChatProps) => {
     setLoading(true);
 
     try {
-      const listingsData = await prepareListingsForGemini();
+      const listingsData: Listing[] = await prepareListingsForGemini();
       console.log("Appwrite Listings Data:", listingsData);
 
       // Send the results back to the Home component
